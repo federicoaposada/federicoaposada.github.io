@@ -4,25 +4,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Generator</title>
+    <title>Image Generator for Signatures</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1oSVmhRtChENTInRkM_QYaf2FNcai2qp5">
 </head>
 
 <body class="bg-gray-100 flex items-center justify-center h-screen">
     <div class="bg-white rounded-lg shadow-md p-8">
         <div class="mb-4">
             <label for="urlInput" class="block mb-2">Enter the URL of the image from Google Drive:</label>
-            <input type="text" id="urlInput" class="border border-gray-300 rounded px-4 py-2 w-full">
+            <input type="text" id="urlInput" class="border border-gray-300 rounded px-4 py-2 w-full" autofocus>
         </div>
-        <button id="generateButton" class="w-48 flex items-center justify-center rounded-md bg-black text-white">Generate
+        <button id="generateButton"
+            class="w-48 flex items-center justify-center rounded-md bg-black text-white">Generate
             HTML</button>
         <br>
+        <hr>
+        <br>
         <div class="mb-3">
-            <textarea id="htmlOutput" rows="4"
-                class="border border-gray-300 rounded px-4 py-2 mt-4 w-full text-gray-500">Generated HTML code here</textarea>
+            <p>HTML code for signature image:</p>
+            <textarea id="htmlOutput" rows="3"
+                class="border border-gray-300 rounded px-4 py-2 mt-2 w-full text-gray-500">Generated HTML code will be here</textarea>
+            <button id="copyHtmlButton"
+                class="w-48 flex items-center justify-center rounded-md bg-black text-white mt-2">Copy HTML</button>
         </div>
-        <button id="copyButton" class="w-48 flex items-center justify-center rounded-md bg-black text-white">Copy
-            HTML</button>
+        <br>
+        <div class="mb-3">
+            <p>Direct image URL:</p>
+            <textarea id="newUrlOutput" rows="3"
+                class="border border-gray-300 rounded px-4 py-2 mt-2 w-full text-gray-500">Direct image URL will be here</textarea>
+            <button id="copyUrlButton"
+                class="w-48 flex items-center justify-center rounded-md bg-black text-white mt-2">Copy URL</button>
+        </div>
         <div id="copyMessage" class="mt-2 text-green-600 hidden">HTML code copied</div>
     </div>
 
@@ -40,12 +53,16 @@
                 var htmlCode = '<img src="https://lh3.googleusercontent.com/d/' + fileId + '" alt="Profile photo" style="position: absolute; width: 7em; height: 7em; object-fit: cover; border-radius: 50%;">';
 
                 document.getElementById('htmlOutput').value = htmlCode;
+
+                var newUrl = 'https://lh3.googleusercontent.com/d/' + fileId;
+                document.getElementById('newUrlOutput').value = newUrl;
             } else {
                 document.getElementById('htmlOutput').value = 'The entered URL is not a valid Google Drive URL.';
+                document.getElementById('newUrlOutput').value = 'Invalid URL';
             }
         });
 
-        document.getElementById('copyButton').addEventListener('click', function () {
+        document.getElementById('copyHtmlButton').addEventListener('click', function () {
             var htmlOutput = document.getElementById('htmlOutput');
 
             var tempTextarea = document.createElement('textarea');
@@ -72,6 +89,42 @@
                 console.error('Error copying text to clipboard:', err);
             } finally {
                 document.body.removeChild(tempTextarea);
+            }
+        });
+
+        document.getElementById('copyUrlButton').addEventListener('click', function () {
+            var newUrlOutput = document.getElementById('newUrlOutput');
+
+            var tempTextarea = document.createElement('textarea');
+            tempTextarea.value = newUrlOutput.value;
+            tempTextarea.setAttribute('readonly', '');
+            tempTextarea.style.position = 'absolute';
+            tempTextarea.style.left = '-9999px';
+            document.body.appendChild(tempTextarea);
+
+            tempTextarea.select();
+            tempTextarea.setSelectionRange(0, tempTextarea.value.length);
+
+            try {
+                var successful = document.execCommand('copy');
+                var message = successful ? 'URL copied' : 'Error copying URL';
+                var copyMessage = document.getElementById('copyMessage');
+                copyMessage.textContent = message;
+                copyMessage.style.display = 'block';
+
+                setTimeout(function () {
+                    copyMessage.style.display = 'none';
+                }, 3000);
+            } catch (err) {
+                console.error('Error copying text to clipboard:', err);
+            } finally {
+                document.body.removeChild(tempTextarea);
+            }
+        });
+
+        document.getElementById('urlInput').addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                document.getElementById('generateButton').click();
             }
         });
 
