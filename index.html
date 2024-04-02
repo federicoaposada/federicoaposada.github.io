@@ -1,13 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/beers.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PunkApi</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de HTML</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <div class="mb-4">
+            <label for="urlInput" class="block mb-2">Ingrese la URL de la imagen de Google Drive:</label>
+            <input type="text" id="urlInput" class="border border-gray-300 rounded px-4 py-2 w-full">
+        </div>
+        <button id="generateButton" class="w-32 flex items-center justify-center rounded-md bg-black text-white">Generar
+            HTML</button>
+        <br>
+        <div class="mb-3">
+            <textarea id="htmlOutput" rows="4"
+                class="border border-gray-300 rounded px-4 py-2 mt-4 w-full">Código HTML generado aquí</textarea>
+        </div>
+        <button id="copyButton" class="w-32 flex items-center justify-center rounded-md bg-black text-white">Copiar
+            HTML</button>
+        <div id="copyMessage" class="mt-2 text-green-600 hidden">Se copió el código HTML</div>
+    </div>
+
+    <script>
+        document.getElementById('generateButton').addEventListener('click', function () {
+            var url = document.getElementById('urlInput').value.trim();
+            if (!url) {
+                alert('Por favor ingrese una URL');
+                return;
+            }
+
+            // Verificar si la URL contiene "drive.google.com"
+            if (url.includes('drive.google.com')) {
+                // Obtener el ID del archivo de la URL de Google Drive
+                var fileId = extractFileIdFromUrl(url);
+
+                // Generar el código HTML
+                var htmlCode = '<img src="https://lh3.googleusercontent.com/d/' + fileId + '" alt="Profile photo" style="position: absolute; width: 7em; height: 7em; object-fit: cover; border-radius: 50%;">';
+
+                // Mostrar el código HTML generado en el textarea
+                document.getElementById('htmlOutput').value = htmlCode;
+            } else {
+                // Mostrar un mensaje de error en el textarea
+                document.getElementById('htmlOutput').value = 'La URL ingresada no es una URL de Google Drive válida.';
+            }
+        });
+
+        document.getElementById('copyButton').addEventListener('click', function () {
+            var htmlOutput = document.getElementById('htmlOutput');
+
+            // Crear un elemento textarea temporal
+            var tempTextarea = document.createElement('textarea');
+            tempTextarea.value = htmlOutput.value;
+            tempTextarea.setAttribute('readonly', '');
+            tempTextarea.style.position = 'absolute';
+            tempTextarea.style.left = '-9999px';
+            document.body.appendChild(tempTextarea);
+
+            // Seleccionar el texto en el textarea temporal
+            tempTextarea.select();
+            tempTextarea.setSelectionRange(0, tempTextarea.value.length);
+
+            try {
+                // Copiar el texto seleccionado al portapapeles
+                var successful = document.execCommand('copy');
+                var message = successful ? 'Se copió el código HTML' : 'Error al copiar el código HTML';
+                var copyMessage = document.getElementById('copyMessage');
+                copyMessage.textContent = message;
+                copyMessage.style.display = 'block';
+
+                // Ocultar el mensaje después de unos segundos
+                setTimeout(function () {
+                    copyMessage.style.display = 'none';
+                }, 3000);
+            } catch (err) {
+                console.error('Error al copiar el texto al portapapeles:', err);
+            } finally {
+                // Eliminar el textarea temporal
+                document.body.removeChild(tempTextarea);
+            }
+        });
+
+        // Función para extraer el ID del archivo de una URL de Google Drive
+        function extractFileIdFromUrl(url) {
+            var match = url.match(/\/d\/([^/]+)/);
+            if (match && match[1]) {
+                return match[1];
+            } else {
+                // Si no se encuentra el ID en el formato esperado, devolver la URL completa
+                return url;
+            }
+        }
+    </script>
+</body>
+
 </html>
